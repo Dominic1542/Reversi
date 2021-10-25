@@ -1,0 +1,442 @@
+#include <iostream>
+#include <string>
+#include <chrono>
+#include <thread>
+
+using namespace std;
+
+int GetVerticalPosition(char gameDesk[9][18], string input);
+int GetHorizontalPosition(char gameDesk[9][18], string input);
+void PrintDesk(char gameDesk[9][18]);
+bool IsDeskEmpty(char gameDesk[9][18]);
+bool IsBadMove(char gameDesk[9][18], int verticalPosition, int horizontalPosition);
+int CheckLeft(char gameDesk[9][18], int verticalPosition, int horizontalPosition, bool whichPlayer);
+int CheckRight(char gameDesk[9][18], int verticalPosition, int horizontalPosition, bool whichPlayer);
+int CheckUp(char gameDesk[9][18], int verticalPosition, int horizontalPosition, bool whichPlayer);
+int CheckDown(char gameDesk[9][18], int verticalPosition, int horizontalPosition, bool whichPlayer);
+int CheckUpLeft(char gameDesk[9][18], int verticalPosition, int horizontalPosition, bool whichPlayer);
+int CheckUpRight(char gameDesk[9][18], int verticalPosition, int horizontalPosition, bool whichPlayer);
+int CheckDownRight(char gameDesk[9][18], int verticalPosition, int horizontalPosition, bool whichPlayer);
+int CheckDownLeft(char gameDesk[9][18], int verticalPosition, int horizontalPosition, bool whichPlayer);
+void GameEnd(char gameDesk[9][18]);
+
+int main()
+{
+	int verticalPosition, horizontalPosition, checkLeft, checkRight, checkUp, checkDown, checkUpLeft, checkUpRight, checkDownRight, checkDownLeft;
+	bool whichPlayer = 0;
+	string input;
+	char playerSymbol;
+	char gameDesk[9][18] = { {"A - - - - - - - -"},
+							 {"B - - - - - - - -"},
+							 {"C - - - - - - - -"},
+							 {"D - - - x + - - -"},
+							 {"E - - - + x - - -"},
+							 {"F - - - - - - - -"},
+							 {"G - - - - - - - -"},
+							 {"H - - - - - - - -"},
+							 {"  1 2 3 4 5 6 7 8"} };
+	PrintDesk(gameDesk);
+
+	//playerSymbol = 'x';
+	while (IsDeskEmpty(gameDesk) != true)
+	{
+		if (whichPlayer == 0)
+		{
+			playerSymbol = 'x';
+			cout << "x zaidejo eile" << endl;
+		}
+		else
+		{
+			playerSymbol = '+';
+			cout << "+ zaidejo eile" << endl;
+		}
+			
+		cin >> input;
+
+		verticalPosition = GetVerticalPosition(gameDesk, input);
+		horizontalPosition = GetHorizontalPosition(gameDesk, input);
+
+		checkLeft = CheckLeft(gameDesk, verticalPosition, horizontalPosition, whichPlayer);
+		checkRight = CheckRight(gameDesk, verticalPosition, horizontalPosition, whichPlayer);
+		checkUp = CheckUp(gameDesk, verticalPosition, horizontalPosition, whichPlayer);
+		checkDown = CheckDown(gameDesk, verticalPosition, horizontalPosition, whichPlayer);
+		checkUpLeft = CheckUpLeft(gameDesk, verticalPosition, horizontalPosition, whichPlayer);
+		checkUpRight = CheckUpRight(gameDesk, verticalPosition, horizontalPosition, whichPlayer);
+		checkDownRight = CheckDownRight(gameDesk, verticalPosition, horizontalPosition, whichPlayer);
+		checkDownLeft = CheckDownLeft(gameDesk, verticalPosition, horizontalPosition, whichPlayer);
+
+		if (checkLeft == 100 && checkRight == 100 && checkUp == 100 && checkDown == 100 && checkUpLeft == 100 && checkUpRight == 100 && checkDownRight == 100 && checkDownLeft == 100)
+			horizontalPosition = 1;
+
+		if (!IsBadMove(gameDesk, verticalPosition, horizontalPosition))
+		{
+			gameDesk[verticalPosition][horizontalPosition] = playerSymbol;
+				
+			if (checkLeft != 100)
+			{
+				for (int i = 0; i < 8; i++)
+				{
+					if (gameDesk[verticalPosition][horizontalPosition - i * 2 - 2] == '-')
+						break;
+					gameDesk[verticalPosition][horizontalPosition - i * 2] = playerSymbol;
+					if (gameDesk[verticalPosition][horizontalPosition - i * 2 - 2] == playerSymbol)
+						break;
+				}
+			}
+			if (checkRight != 100)
+			{
+				for (int i = 0; i < 8; i++)
+				{
+					if (gameDesk[verticalPosition][horizontalPosition + i * 2 + 2] == '-')
+						break;
+					gameDesk[verticalPosition][horizontalPosition + i * 2] = playerSymbol;
+					if (gameDesk[verticalPosition][horizontalPosition + i * 2 + 2] == playerSymbol)
+						break;
+				}
+			}
+			if (checkUp != 100)
+			{
+				for (int i = 0; i < 8; i++)
+				{
+					if (gameDesk[verticalPosition - i - 1][horizontalPosition] == '-')
+						break;
+					gameDesk[verticalPosition - i][horizontalPosition] = playerSymbol;
+					if (gameDesk[verticalPosition - i - 1][horizontalPosition] == playerSymbol)
+						break;
+				}
+			}
+			if (checkDown != 100)
+			{
+				for (int i = 0; i < 8; i++)
+				{
+					if (gameDesk[verticalPosition + i + 1][horizontalPosition] == '-')
+						break;
+					gameDesk[verticalPosition + i][horizontalPosition] = playerSymbol;
+					if (gameDesk[verticalPosition + i + 1][horizontalPosition] == playerSymbol)
+						break;
+				}
+			}
+			if (checkUpLeft != 100)
+			{
+				for (int i = 0; i < 8; i++)
+				{
+					if (gameDesk[verticalPosition - i - 1][horizontalPosition - i * 2 - 2] == '-')
+						break;
+					gameDesk[verticalPosition - i][horizontalPosition - i * 2] = playerSymbol;
+					if (gameDesk[verticalPosition - i - 1][horizontalPosition - i * 2 - 2] == playerSymbol)
+						break;
+				}
+			}
+			if (checkUpRight != 100)
+			{
+				for (int i = 0; i < 8; i++)
+				{
+					if (gameDesk[verticalPosition - i - 1][horizontalPosition + i * 2 + 2] == '-')
+						break;
+					gameDesk[verticalPosition - i][horizontalPosition + i * 2] = playerSymbol;
+					if (gameDesk[verticalPosition - i - 1][horizontalPosition + i * 2 + 2] == playerSymbol)
+						break;
+				}
+			}
+			if (checkDownRight != 100)
+			{
+				for (int i = 0; i < 8; i++)
+				{
+					if (gameDesk[verticalPosition + i + 1][horizontalPosition + i * 2 + 2] == '-')
+						break;
+					gameDesk[verticalPosition + i][horizontalPosition + i * 2] = playerSymbol;
+					if (gameDesk[verticalPosition + i + 1][horizontalPosition + i * 2 + 2] == playerSymbol)
+						break;
+				}
+			}
+			if (checkDownLeft != 100)
+			{
+				for (int i = 0; i < 8; i++)
+				{
+					if (gameDesk[verticalPosition + i + 1][horizontalPosition - i * 2 - 2] == '-')
+						break;
+					gameDesk[verticalPosition + i][horizontalPosition - i * 2] = playerSymbol;
+					if (gameDesk[verticalPosition + i + 1][horizontalPosition - i * 2 - 2] == playerSymbol)
+						break;
+				}
+			}
+
+			if (checkLeft != 100 || checkRight != 100 || checkUp != 100 || checkDown != 100 || checkUpLeft != 100 || checkUpRight != 100 || checkDownRight != 100 || checkDownLeft != 100)
+			{
+				if (whichPlayer == 0)
+					whichPlayer = 1;
+				else
+					whichPlayer = 0;
+			}
+					
+		}
+		else
+		{
+			if (checkLeft != 100 || checkRight != 100 || checkUp != 100 || checkDown != 100 || checkUpLeft != 100 || checkUpRight != 100 || checkDownRight != 100 || checkDownLeft != 100)
+				if (whichPlayer == 0)
+					whichPlayer = 1;
+				else
+					whichPlayer = 0;
+		}	
+
+			system("cls");
+			PrintDesk(gameDesk);
+	}
+	GameEnd(gameDesk);
+}
+
+int GetVerticalPosition(char gameDesk[9][18], string input)
+{
+	int verticalPosition = 100;
+	for (int i = 0; i < 8; i++)
+	{
+		if (gameDesk[i][0] == input[0])
+			verticalPosition = i;
+	}
+	return verticalPosition;
+}
+
+int GetHorizontalPosition(char gameDesk[9][18], string input)
+{
+	int horizontalPosition = 100;
+	for (int i = 1; i < 9; i++)
+	{
+		if (gameDesk[8][i * 2] == input[1])
+			horizontalPosition = i * 2;
+	}
+	return horizontalPosition;
+}
+
+void PrintDesk(char gameDesk[9][18])
+{
+	for (int i = 0; i < 9; i++)
+	{
+		for (int j = 0; j < 18; j++)
+			cout << gameDesk[i][j];
+		cout << endl;
+	}
+}
+
+bool IsDeskEmpty(char gameDesk[9][18])
+{
+	for (int i = 0; i < 8; i++)
+	{
+		for (int j = 1; j < 18; j++)
+			if (gameDesk[i][j] == '-')
+				return false;
+	}
+	return true;
+}
+
+bool IsBadMove(char gameDesk[9][18], int verticalPosition, int horizontalPosition)
+{
+	if (horizontalPosition < 2 || horizontalPosition > 16 || horizontalPosition % 2 == 1 || verticalPosition < 0 || verticalPosition > 7 || gameDesk[verticalPosition][horizontalPosition] != '-')
+	{
+		cout << "Negalimas ejimas";
+		chrono::seconds dura(1);
+		this_thread::sleep_for(dura);
+		return true;
+	}
+	return false;
+}
+
+int CheckLeft(char gameDesk[9][18], int verticalPosition, int horizontalPosition, bool whichPlayer)
+{
+	char playerSymbol;
+	if (whichPlayer == 0)
+		playerSymbol = 'x';
+	else
+		playerSymbol = '+';
+	if (gameDesk[verticalPosition][horizontalPosition - 2] == playerSymbol)
+		return 100;
+
+	for (int i = 1; i <= 8; i++)
+	{
+		if (horizontalPosition == 2)
+			return 100;
+		if (gameDesk[verticalPosition][horizontalPosition - i * 2] == '-')
+			return 100;
+		if (gameDesk[verticalPosition][horizontalPosition - i * 2] == playerSymbol)
+			return horizontalPosition / 2 - i;
+	}
+	return 100;
+}
+
+int CheckRight(char gameDesk[9][18], int verticalPosition, int horizontalPosition, bool whichPlayer)
+{
+	char playerSymbol;
+	if (whichPlayer == 0)
+		playerSymbol = 'x';
+	else
+		playerSymbol = '+';
+	if (gameDesk[verticalPosition][horizontalPosition + 2] == playerSymbol)
+		return 100;
+
+	for (int i = 1; i <= 8; i++)
+	{
+		if (horizontalPosition == 16)
+			return 100;
+		if (gameDesk[verticalPosition][horizontalPosition + i * 2] == '-')
+			return 100;
+		if (gameDesk[verticalPosition][horizontalPosition + i * 2] == playerSymbol)
+			return horizontalPosition / 2 + i;
+	}
+	return 100;
+}
+
+int CheckUp(char gameDesk[9][18], int verticalPosition, int horizontalPosition, bool whichPlayer)
+{
+	char playerSymbol;
+	if (whichPlayer == 0)
+		playerSymbol = 'x';
+	else
+		playerSymbol = '+';
+	if (gameDesk[verticalPosition - 1][horizontalPosition] == playerSymbol)
+		return 100;
+
+	for (int i = 1; i <= 8; i++)
+	{
+		if (verticalPosition == 0)
+			return 100;
+		if (gameDesk[verticalPosition - i][horizontalPosition] == '-')
+			return 100;
+		if (gameDesk[verticalPosition - i][horizontalPosition] == playerSymbol)
+			return verticalPosition - i;
+	}
+	return 100;
+}
+
+int CheckDown(char gameDesk[9][18], int verticalPosition, int horizontalPosition, bool whichPlayer)
+{
+	char playerSymbol;
+	if (whichPlayer == 0)
+		playerSymbol = 'x';
+	else
+		playerSymbol = '+';
+	if (gameDesk[verticalPosition + 1][horizontalPosition] == playerSymbol)
+		return 100;
+
+	for (int i = 1; i <= 8; i++)
+	{
+		if (verticalPosition == 7)
+			return 100;
+		if (gameDesk[verticalPosition + i][horizontalPosition] == '-')
+			return 100;
+		if (gameDesk[verticalPosition + i][horizontalPosition] == playerSymbol)
+			return verticalPosition + i;
+	}
+	return 100;
+}
+
+int CheckUpLeft(char gameDesk[9][18], int verticalPosition, int horizontalPosition, bool whichPlayer)
+{
+	char playerSymbol;
+	if (whichPlayer == 0)
+		playerSymbol = 'x';
+	else
+		playerSymbol = '+';
+	if (gameDesk[verticalPosition - 1][horizontalPosition - 2] == playerSymbol)
+		return 100;
+
+	for (int i = 1; i <= 8; i++)
+	{
+		if (verticalPosition == 0 || horizontalPosition == 2)
+			return 100;
+		if (gameDesk[verticalPosition - i][horizontalPosition - i * 2] == '-')
+			return 100;
+		if (gameDesk[verticalPosition - i][horizontalPosition - i * 2] == playerSymbol)
+			return verticalPosition - i;
+	}
+	return 100;
+}
+
+int CheckUpRight(char gameDesk[9][18], int verticalPosition, int horizontalPosition, bool whichPlayer)
+{
+	char playerSymbol;
+	if (whichPlayer == 0)
+		playerSymbol = 'x';
+	else
+		playerSymbol = '+';
+	if (gameDesk[verticalPosition - 1][horizontalPosition + 2] == playerSymbol)
+		return 100;
+
+	for (int i = 1; i <= 8; i++)
+	{
+		if (verticalPosition == 0 || horizontalPosition == 16)
+			return 100;
+		if (gameDesk[verticalPosition - i][horizontalPosition + i * 2] == '-')
+			return 100;
+		if (gameDesk[verticalPosition - i][horizontalPosition + i * 2] == playerSymbol)
+			return verticalPosition - i;
+	}
+	return 100;
+}
+
+int CheckDownRight(char gameDesk[9][18], int verticalPosition, int horizontalPosition, bool whichPlayer)
+{
+	char playerSymbol;
+	if (whichPlayer == 0)
+		playerSymbol = 'x';
+	else
+		playerSymbol = '+';
+	if (gameDesk[verticalPosition + 1][horizontalPosition + 2] == playerSymbol)
+		return 100;
+
+	for (int i = 1; i <= 8; i++)
+	{
+		if (verticalPosition == 7 || horizontalPosition == 16)
+			return 100;
+		if (gameDesk[verticalPosition + i][horizontalPosition + i * 2] == '-')
+			return 100;
+		if (gameDesk[verticalPosition + i][horizontalPosition + i * 2] == playerSymbol)
+			return verticalPosition + i;
+	}
+	return 100;
+}
+
+int CheckDownLeft(char gameDesk[9][18], int verticalPosition, int horizontalPosition, bool whichPlayer)
+{
+	char playerSymbol;
+	if (whichPlayer == 0)
+		playerSymbol = 'x';
+	else
+		playerSymbol = '+';
+	if (gameDesk[verticalPosition + 1][horizontalPosition - 2] == playerSymbol)
+		return 100;
+
+	for (int i = 1; i <= 8; i++)
+	{
+		if (verticalPosition == 7 || horizontalPosition == 2)
+			return 100;
+		if (gameDesk[verticalPosition + i][horizontalPosition - i * 2] == '-')
+			return 100;
+		if (gameDesk[verticalPosition + i][horizontalPosition - i * 2] == playerSymbol)
+			return verticalPosition + i;
+	}
+	return 100;
+}
+
+void GameEnd(char gameDesk[9][18])
+{
+	int xSum = 0, plusSum = 0;
+
+	for (int i = 0; i < 8; i++)
+	{
+		for (int j = 0; j < 18; j++)
+		{
+			if (gameDesk[i][j] == 'x')
+				xSum++;
+			else if (gameDesk[i][j] == '+')
+				plusSum++;
+		}
+	}
+	if (xSum > plusSum)
+		cout << "Laimejo x zaidejas!" << endl;
+	else if (xSum < plusSum)
+		cout << "Laimejo + zaidejas!" << endl;
+	else
+		cout << "Lygiosios!" << endl;
+
+	cout << "x = " << xSum << endl;
+	cout << "+ = " << plusSum << endl;
+}
